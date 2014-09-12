@@ -1,4 +1,4 @@
-package allen.memory;
+package allen.memoryutil.other;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -7,6 +7,8 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
+
+import allen.memoryutil.Agent;
 
 /**
  * 对象占用字节大小工具类
