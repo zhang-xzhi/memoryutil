@@ -82,7 +82,10 @@ public class TestMemory {
 
     private static void printArrayAndRelated() {
         printObject("4 length byte array", new byte[4]);
+
         printObject("5 length byte array", new byte[5]);
+
+        printObject("1 length int array", new int[1]);
 
         printObject("0 length char array", new char[0]);
         printObject("11 length char array", new char[11]);
