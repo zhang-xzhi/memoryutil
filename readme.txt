@@ -20,6 +20,7 @@ allen.memoryutil.size
 可以获得基本类型大小。
 
 如何使用
+0 查看memoryutil默认输入，在jar目录下输入 java -javaagent:memoryutil-0.1.jar -cp . allen.memoryutil.dirver.TestMemory。
 1 加memoryutil-0.1.jar到工程的class path。
 2 建立自己的入口类，假设为test.Allen，调用memoryutil的工具类打印测试对象的信息。
 3 在命令行执行 java -javaagent:memoryutil-0.1.jar -cp . test.Allen
