@@ -10,29 +10,36 @@ import java.util.Stack;
 
 public class MemoryUtil {
 
-    public static long memoryUsageOf(Object obj) {
-        return Agent.getInstrumentation().getObjectSize(obj);
+    public static long getShallowSize(Object obj) {
+        return deepMemoryDetail(obj, Agent.getInstrumentation())
+                .getShallowSize();
     }
 
-    public static long deepMemoryUsageOf(Object obj) {
-        MemoryDetailEntry root = new MemoryDetailEntry(obj);
-        return deepMemoryUsageOf0(root, Agent.getInstrumentation());
+    public static long getFullSize(Object obj) {
+        return deepMemoryDetail(obj, Agent.getInstrumentation()).getFullSize();
+    }
+
+    public static long getPaddingSize(Object obj) {
+        return deepMemoryDetail(obj, Agent.getInstrumentation())
+                .getPaddingSize();
+    }
+
+    public static long getFullPaddingSize(Object obj) {
+        return deepMemoryDetail(obj, Agent.getInstrumentation())
+                .getFullPaddingSize();
     }
 
     public static MemoryDetailEntry deepMemoryDetail(Object obj) {
-        MemoryDetailEntry root = new MemoryDetailEntry(obj);
-        deepMemoryUsageOf0(root, Agent.getInstrumentation());
-        return root;
+        return deepMemoryDetail(obj, Agent.getInstrumentation());
     }
 
-    private static long deepMemoryUsageOf0(MemoryDetailEntry root,
+    private static MemoryDetailEntry deepMemoryDetail(Object obj,
             Instrumentation instrumentation) throws SecurityException {
 
+        MemoryDetailEntry root = new MemoryDetailEntry(obj);
         IdentityHashMap<Object, Object> visitedMap = new IdentityHashMap<Object, Object>();
         Stack<MemoryDetailEntry> stack = new Stack<MemoryDetailEntry>();
         stack.push(root);
-
-        long total = 0L;
 
         while (!stack.isEmpty()) {
             MemoryDetailEntry detailEntry = stack.pop();
@@ -46,7 +53,6 @@ public class MemoryUtil {
 
             long sz = instrumentation.getObjectSize(detailEntry.object);
             detailEntry.shallowSize = sz;
-            total += sz;
 
             Class<?> clz = detailEntry.object.getClass();
             Class<?> compType = clz.getComponentType();
@@ -112,7 +118,7 @@ public class MemoryUtil {
             }
         }
 
-        return total;
+        return root;
     }
 
 }

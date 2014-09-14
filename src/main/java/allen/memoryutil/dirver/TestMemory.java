@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
+import allen.memoryutil.MemoryDetailEntry;
 import allen.memoryutil.MemoryUtil;
 import allen.memoryutil.ObjectHeaderType;
 import allen.memoryutil.size.ObjectHeaderSize;
@@ -62,67 +63,86 @@ public class TestMemory {
     }
 
     private static void printSimpleObject() {
-        printObjectDetail("empty object", new Object());
+        printObject("empty object", new Object());
 
-        printObjectDetail("ClassWithEightBooleanField",
+        printObject("ClassWithEightBooleanField",
                 new ClassWithEightBooleanField());
 
-        printObjectDetail("ClassWithEightByteField",
-                new ClassWithEightByteField());
+        printObject("ClassWithEightByteField", new ClassWithEightByteField());
 
-        printObjectDetail("ClassWithOneBooleanField",
-                new ClassWithOneBooleanField());
+        printObject("ClassWithOneBooleanField", new ClassWithOneBooleanField());
 
-        printObjectDetail("ClassWithManyFields", new ClassWithManyFields());
+        printObject("ClassWithManyFields", new ClassWithManyFields());
+
+        printObject("Child", new Child());
+
+        printObject("C_D", new C_D());
 
     }
 
     private static void printArrayAndRelated() {
-        printObjectDetail("4 length byte array", new byte[4]);
-        printObjectDetail("5 length byte array", new byte[5]);
+        printObject("4 length byte array", new byte[4]);
+        printObject("5 length byte array", new byte[5]);
 
-        printObjectDetail("0 length char array", new char[0]);
-        printObjectDetail("11 length char array", new char[11]);
+        printObject("0 length char array", new char[0]);
+        printObject("11 length char array", new char[11]);
 
-        printObjectDetail("0 length object array", new Object[] {});
-        printObjectDetail("2 length object array", new Object[] { new Object(),
+        printObject("0 length object array", new Object[] {});
+        printObject("2 length object array", new Object[] { new Object(),
                 new Object() });
 
-        printObjectDetail("Multidimensional object array", new Object[][] {
+        printObject("Multidimensional object array", new Object[][] {
                 new Object[] { new Object() },
                 new Object[] { new Object(), new Object() } });
     }
 
     private static void printCollections() {
-        printObjectDetail("empty ArrayList", new ArrayList());
-        printObjectDetail("empty LinkedList", new LinkedList());
-        printObjectDetail("empty HashMap", new HashMap());
-        printObjectDetail("empty TreeMap", new TreeMap());
-        printObjectDetail("empty HashSet", new HashSet());
+        printObject("empty ArrayList", new ArrayList());
+        printObject("empty LinkedList", new LinkedList());
+        printObject("empty HashMap", new HashMap());
+        printObject("empty TreeMap", new TreeMap());
+        printObject("empty HashSet", new HashSet());
+
+        {
+            LinkedList<String> linkedList = new LinkedList<String>();
+            linkedList.add("abcd");
+            printObject("linkedList with abcd string", linkedList);
+        }
     }
 
     private static void printEnumAndRelated() {
-        printObjectDetail("EnumA.One", EnumA.One);
+        printObject("EnumA.One", EnumA.One);
     }
+
+    private static boolean detailMode = false;
 
     public static void main(String[] args) throws Exception {
 
-        //        printBasic();
+        printBasic();
 
         printWrapperBasic();
-        //
-        //        printStringAndRelated();
-        //
-        //        printSimpleObject();
-        //
-        //        printArrayAndRelated();
-        //
-        //        printCollections();
-        //
-        //        printEnumAndRelated();
+
+        printStringAndRelated();
+
+        printSimpleObject();
+
+        printArrayAndRelated();
+
+        printCollections();
+
+        printEnumAndRelated();
+
         System.out.println();
         System.out.println();
         System.out.println();
+    }
+
+    private static void printObject(String desc, Object obj) {
+        if (detailMode) {
+            printObjectDetail(desc, obj);
+        } else {
+            printObjectInShort(desc, obj);
+        }
     }
 
     public static void printObjectDetail(String desc, Object obj) {
@@ -132,10 +152,14 @@ public class TestMemory {
         System.out.println();
     }
 
-    public static void printObject(String desc, Object obj) {
+    public static void printObjectInShort(String desc, Object obj) {
+        System.out.println();
+        MemoryDetailEntry entry = MemoryUtil.deepMemoryDetail(obj);
         System.out.println("obj=" + desc + " shallow size="
-                + MemoryUtil.memoryUsageOf(obj) + " full size="
-                + MemoryUtil.deepMemoryUsageOf(obj));
+                + entry.getShallowSize() + " padding size="
+                + entry.getPaddingSize() + " full size=" + entry.getFullSize()
+                + " full padding size=" + entry.getFullPaddingSize());
+        System.out.println();
     }
 
 }

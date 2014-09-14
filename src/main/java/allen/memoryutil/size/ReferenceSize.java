@@ -7,7 +7,7 @@ public class ReferenceSize {
     private static long referenceSize = 0;
 
     static {
-        referenceSize = MemoryUtil.memoryUsageOf(new Object[1024]) / 1024;
+        referenceSize = MemoryUtil.getShallowSize(new Object[1024]) / 1024;
     }
 
     public static long getReferenceSize() {

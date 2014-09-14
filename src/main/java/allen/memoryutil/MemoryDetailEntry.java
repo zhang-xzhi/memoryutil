@@ -44,35 +44,97 @@ public class MemoryDetailEntry {
         this.object = obj;
     }
 
-    public void addField(Field field) {
+    void addField(Field field) {
         fieldWrapperList.add(new FieldWrapper(field));
     }
 
-    public void addChildren(MemoryDetailEntry entry) {
+    void addChildren(MemoryDetailEntry entry) {
         children.put(entry, null);
     }
 
-    private boolean isArray() {
+    public boolean isArray() {
         return object.getClass().isArray();
     }
 
-    private boolean isParentArray() {
+    public boolean isParentArray() {
         if (parent == null) {
             return false;
         }
         return parent.isArray();
     }
 
-    private boolean isRoot() {
+    public boolean isRoot() {
         return parent == null;
     }
 
-    private long getFullSize() {
+    public long getShallowSize() {
+        return shallowSize;
+    }
+
+    public long getFullSize() {
+        if (duplicate) {
+            throw new RuntimeException("duplicate object.");
+        }
+
         long total = 0L;
         total += shallowSize;
         for (MemoryDetailEntry e : children.keySet()) {
-            if (!duplicate) {
+            if (!e.duplicate) {
                 total += e.getFullSize();
+            }
+        }
+        return total;
+    }
+
+    public long getPaddingSize() {
+        if (duplicate) {
+            throw new RuntimeException("duplicate object.");
+        }
+    
+        long realSize = 0L;
+    
+        ObjectHeaderType headerType;
+        if (isArray()) {
+            headerType = ObjectHeaderType.ArrayHeader;
+        } else {
+            headerType = ObjectHeaderType.NormalHeader;
+        }
+    
+        realSize += ObjectHeaderSize.getSize(headerType);
+    
+        if (isArray()) {
+            long elementSize = 0L;
+            if (compType.isPrimitive()) {
+                elementSize = PrimitiveSize.getSize(compType);
+            } else {
+                elementSize = ReferenceSize.getReferenceSize();
+            }
+            realSize += (elementSize * arrayLength);
+        }
+    
+        Collections.sort(fieldWrapperList);
+        for (FieldWrapper fieldWrapper : fieldWrapperList) {
+            Field fld = fieldWrapper.field;
+            if (fld.getType().isPrimitive()) {
+                realSize += PrimitiveSize.getSize(fld.getType());
+            } else {
+                realSize += ReferenceSize.getReferenceSize();
+            }
+        }
+    
+        return shallowSize - realSize;
+    }
+
+    public long getFullPaddingSize() {
+        if (duplicate) {
+            throw new RuntimeException("duplicate object.");
+        }
+
+        long total = 0L;
+        total += getPaddingSize();
+        for (MemoryDetailEntry e : children.keySet()) {
+            if (!e.duplicate) {
+                total += e.getFullPaddingSize();
             }
         }
         return total;
@@ -121,6 +183,7 @@ public class MemoryDetailEntry {
 
         sb.append(temStr + "shallow size = " + shallowSize + "\n");
         sb.append(temStr + "full size = " + getFullSize() + "\n");
+        sb.append(temStr + "full padding size = " + getFullPaddingSize() + "\n");
 
         ObjectHeaderType headerType;
         if (isArray()) {
@@ -130,11 +193,8 @@ public class MemoryDetailEntry {
         }
         sb.append(temStr + "-----------shallow size detail.-----------------\n");
 
-        long realSize = 0L;
-
         sb.append(temStr + "headerType = " + headerType + " size = "
                 + ObjectHeaderSize.getSize(headerType) + "\n");
-        realSize += ObjectHeaderSize.getSize(headerType);
 
         if (isArray()) {
             long elementSize = 0L;
@@ -148,7 +208,6 @@ public class MemoryDetailEntry {
                     + arrayLength + " size = ( " + elementSize + " * "
                     + arrayLength + " ) = " + (elementSize * arrayLength)
                     + "\n");
-            realSize += (elementSize * arrayLength);
         }
 
         Collections.sort(fieldWrapperList);
@@ -158,15 +217,13 @@ public class MemoryDetailEntry {
             if (fld.getType().isPrimitive()) {
                 sb.append("size = " + PrimitiveSize.getSize(fld.getType())
                         + " " + fld + "\n");
-                realSize += PrimitiveSize.getSize(fld.getType());
             } else {
                 sb.append("size = " + ReferenceSize.getReferenceSize() + " "
                         + fld + "\n");
-                realSize += ReferenceSize.getReferenceSize();
             }
         }
 
-        sb.append(temStr + "padding size = " + (shallowSize - realSize) + "\n");
+        sb.append(temStr + "padding size = " + getPaddingSize() + "\n");
 
         sb.append(temStr + "-----------end of shallow size detail.----------\n");
 

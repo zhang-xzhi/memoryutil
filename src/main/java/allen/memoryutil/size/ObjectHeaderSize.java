@@ -15,8 +15,8 @@ public class ObjectHeaderSize {
     static {
 
         {
-            long size_a = MemoryUtil.memoryUsageOf(new int[0]);
-            long size_b = MemoryUtil.memoryUsageOf(new int[1]);
+            long size_a = MemoryUtil.getShallowSize(new int[0]);
+            long size_b = MemoryUtil.getShallowSize(new int[1]);
             if (size_a < size_b) {
                 arrayHeaderSize = size_a;
             } else {
@@ -25,8 +25,8 @@ public class ObjectHeaderSize {
         }
 
         {
-            long size_a = MemoryUtil.memoryUsageOf(new Object());
-            long size_b = MemoryUtil.memoryUsageOf(new A());
+            long size_a = MemoryUtil.getShallowSize(new Object());
+            long size_b = MemoryUtil.getShallowSize(new A());
             if (size_a < size_b) {
                 normalHeaderSize = size_a;
             } else {
