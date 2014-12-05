@@ -13,13 +13,13 @@ public class TestForMap {
     }
 
     private static void allenTest() {
-        TestMemory.printObjectInShort("12, 10000",
+        TestMemory.printObjectInShort("1200, 10000",
                 putKeyAndValue(new HashMap<Object, Object>(), 12, 10000));
-        TestMemory.printObjectInShort("12, 20000",
+        TestMemory.printObjectInShort("1200, 20000",
                 putKeyAndValue(new HashMap<Object, Object>(), 12, 20000));
-        TestMemory.printObjectInShort("16, 10000",
+        TestMemory.printObjectInShort("1600, 10000",
                 putKeyAndValue(new HashMap<Object, Object>(), 16, 10000));
-        TestMemory.printObjectInShort("16, 20000",
+        TestMemory.printObjectInShort("1600, 20000",
                 putKeyAndValue(new HashMap<Object, Object>(), 16, 20000));
 
     }
