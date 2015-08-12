@@ -1,4 +1,4 @@
-package allen.memoryutil.other;
+package allen.memoryutil;
 
 import java.lang.reflect.Field;
 
